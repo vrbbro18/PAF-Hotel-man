@@ -32,6 +32,7 @@ public class LikeController {
         return new ResponseEntity<>(savedLike, HttpStatus.CREATED);
     }
 
+    //delete like
     @DeleteMapping("/{likeId}")
     public ResponseEntity<Void> deleteLike(@PathVariable String likeId) {
         likeRepository.deleteById(likeId);
