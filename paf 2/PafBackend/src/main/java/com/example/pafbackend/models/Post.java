@@ -27,8 +27,9 @@ public class Post {
     // Replace single mediaLink/mediaType with lists
     private List<String> mediaLinks = new ArrayList<>();
     private List<String> mediaTypes = new ArrayList<>();
-    
+
     // Keep old fields for backward compatibility
+
     private String mediaLink;
     private String mediaType;
     
