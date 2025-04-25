@@ -52,7 +52,7 @@ public ResponseEntity<Post> createPost(@RequestBody Post post) {
             post.setMediaTypes(new ArrayList<>());
         }
 
-        // For backward compatibility, add single media to arrays if they're not already there
+
         // For backward compatibility, add single media to arrays if they're not already there
         if (post.getMediaLink() != null && !post.getMediaLink().isEmpty() && 
             !post.getMediaLinks().contains(post.getMediaLink())) {
