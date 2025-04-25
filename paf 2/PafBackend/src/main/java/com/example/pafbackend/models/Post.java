@@ -28,7 +28,7 @@ public class Post {
     private List<String> mediaLinks = new ArrayList<>();
     private List<String> mediaTypes = new ArrayList<>();
 
-    // Keep old fields for backward compatibility
+    // Keep old fields for the backward compatibility
 
 //    @lombok.Generated
 //    public java.util.List<java.lang.String> getIngredients() { /* compiled code */ }
