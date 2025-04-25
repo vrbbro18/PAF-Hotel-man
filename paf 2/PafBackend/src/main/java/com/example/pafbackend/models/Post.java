@@ -30,6 +30,9 @@ public class Post {
 
     // Keep old fields for backward compatibility
 
+//    @lombok.Generated
+//    public java.util.List<java.lang.String> getIngredients() { /* compiled code */ }
+
     private String mediaLink;
     private String mediaType;
     
