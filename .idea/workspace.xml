@@ -4,73 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a3c33fd7-a515-4b4a-b2b0-ff69eb134ae6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/PafBackendApplication$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/PafBackendApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/config/GoogleOAuthSuccessHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/config/JwtToUserConverter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/config/KeyUtils.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/config/MongoUserDetailsManager.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/config/OAuth2LoginSuccessHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/config/SecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/config/TokenGenerator.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/AuthController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/BookmarkController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/CommentController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/FileUploadController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/GroupController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/GroupPostController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/LikeController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/MealPlanController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/MediaController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/NotificationController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/PostController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/SkillShareController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/StoryStatusUpdateController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/UserConnectionController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/UserController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/controllers/UserProfileController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/dto/LoginDTO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/dto/SignupDTO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/dto/TokenDTO.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/Account.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/Bookmark.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/Comment.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/Group.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/GroupPost.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/Like.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/MealPlan.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/Media.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/Notification.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/Post.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/SkillShare.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/StoryStatusUpdate.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/UserConnection.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/models/UserProfile.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/BookmarkRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/CommentRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/GroupPostRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/GroupRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/LikeRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/MealPlanRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/MediaRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/NotificationRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/PostRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/SkillShareRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/StoryStatusUpdateRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/UserConnectionRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/UserProfileRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/classes/com/example/pafbackend/repositories/UserRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/paf 2/PafBackend/target/test-classes/com/example/pafbackend/PafBackendApplicationTests.class" beforeDir="false" />
-    </list>
+    <list default="true" id="a3c33fd7-a515-4b4a-b2b0-ff69eb134ae6" name="Changes" comment="change the function" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -80,6 +25,7 @@
   "associatedIndex": 8
 }]]></component>
   <component name="ProjectId" id="2wJFDgqhOi9puKuVnmZ1w860GrE" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -90,12 +36,13 @@
     "JUnit.All in PafBackend.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "imasha",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/IMASHA/IdeaProjects/PAF-Hotel-man",
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.language.Kotlin"
+    "settings.editor.selected.configurable": "project.propCompiler"
   }
 }]]></component>
   <component name="RunManager" selected="Application.PafBackendApplication">
@@ -142,6 +89,46 @@
       <option name="presentableId" value="Default" />
       <updated>1745751652607</updated>
     </task>
+    <task id="LOCAL-00001" summary="change the function">
+      <option name="closed" value="true" />
+      <created>1745753362923</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1745753362923</updated>
+    </task>
+    <task id="LOCAL-00002" summary="change the function">
+      <option name="closed" value="true" />
+      <created>1745753459532</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1745753459532</updated>
+    </task>
+    <task id="LOCAL-00003" summary="change the function">
+      <option name="closed" value="true" />
+      <created>1745753558693</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1745753558693</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="change the function" />
+    <option name="LAST_COMMIT_MESSAGE" value="change the function" />
   </component>
 </project>
