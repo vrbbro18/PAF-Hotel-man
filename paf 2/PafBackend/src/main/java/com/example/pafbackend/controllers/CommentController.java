@@ -27,6 +27,7 @@ public class CommentController {
     private PostRepository postRepository;
 
     // POST: Create a new Comment
+    //test
     @PostMapping
     public ResponseEntity<Comment> createComment(@RequestBody Comment comment, @RequestParam String userId) {
         // Validate user
