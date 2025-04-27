@@ -25,13 +25,13 @@ public class LikeController {
         List<Like> likes = likeRepository.findByPostId(postId);
         return new ResponseEntity<>(likes, HttpStatus.OK);
     }
-
+//post function
     @PostMapping
     public ResponseEntity<Like> createLike(@RequestBody Like like) {
         Like savedLike = likeRepository.save(like);
         return new ResponseEntity<>(savedLike, HttpStatus.CREATED);
     }
-
+//Delete function
     @DeleteMapping("/{likeId}")
     public ResponseEntity<Void> deleteLike(@PathVariable String likeId) {
         likeRepository.deleteById(likeId);
