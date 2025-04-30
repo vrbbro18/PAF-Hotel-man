@@ -31,7 +31,7 @@ public class CommentController {
     public ResponseEntity<Comment> createComment(@RequestBody Comment comment, @RequestParam String userId) {
         // Validate user
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found Or Registeredkk"));
+            .orElseThrow(() -> new RuntimeException("User not found"));
         
         // Validate post
         Post post = postRepository.findById(comment.getPostId())
