@@ -3,13 +3,11 @@ import { Container, Row, Col, Card, Button, Form, Spinner, Badge, Modal } from '
 import { AuthContext } from '../context/AuthContext';
 import { postService, commentService, likeService, userService, bookmarkService } from '../api/apiService';
 import { FaHeart, FaRegHeart, FaComment, FaUserCircle, FaBookmark, FaRegBookmark, FaEdit, FaTrash } from 'react-icons/fa';
-// Import the MediaUpload component
 import MediaUpload from '../components/MediaUpload';
-// Import toast for notifications
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Replace date-fns with a simple function
+// Utility function to format timestamps
 const formatTimeAgo = (dateString) => {
   if (!dateString) return 'Recently';
   const date = new Date(dateString);
@@ -33,8 +31,15 @@ const Feed = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [newPost, setNewPost] = useState({ contentDescription: '', title: '' });
-  // Add state for media items
+  const [newPost, setNewPost] = useState({
+    contentDescription: '',
+    title: '',
+    ingredients: [],
+    instructions: '',
+    cookingTime: '',
+    difficultyLevel: '',
+    cuisineType: ''
+  });
   const [mediaItems, setMediaItems] = useState([]);
   const [comments, setComments] = useState({});
   const [likes, setLikes] = useState({});
@@ -43,26 +48,32 @@ const Feed = () => {
   const [submittingPost, setSubmittingPost] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [editingComment, setEditingComment] = useState({ id: null, text: '' });
-  // Add state to track bookmarked posts
   const [bookmarkedPosts, setBookmarkedPosts] = useState({});
+  // State for editing a post
+  const [editingPost, setEditingPost] = useState(null);
 
+  // Debug currentUser on mount
+  useEffect(() => {
+    console.log('Current User:', currentUser);
+  }, [currentUser]);
+
+  // Fetch posts on mount
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  // Add useEffect to load user's bookmarks when component mounts
+  // Fetch user bookmarks
   useEffect(() => {
     const fetchUserBookmarks = async () => {
       try {
         const response = await bookmarkService.getUserBookmarks(currentUser.id);
-        // Create a map of bookmarked post IDs for easy lookup
         const bookmarkMap = {};
         response.data.forEach(bookmark => {
           bookmarkMap[bookmark.resourceId] = bookmark;
         });
         setBookmarkedPosts(bookmarkMap);
       } catch (err) {
-        console.error("Error fetching user bookmarks:", err);
+        console.error('Error fetching user bookmarks:', err);
       }
     };
 
@@ -76,15 +87,13 @@ const Feed = () => {
       setLoading(true);
       const response = await postService.getAllPosts();
       const fetchedPosts = response.data;
-      // Sort posts by timestamp (newest first)
       fetchedPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       setPosts(fetchedPosts);
-      // Fetch comments, likes, and user data for each post
+      console.log('Fetched Posts:', fetchedPosts);
       await Promise.all([
         fetchCommentsForPosts(fetchedPosts),
         fetchLikesForPosts(fetchedPosts),
       ]);
-      // Fetch user data for posts
       const userIds = [...new Set(fetchedPosts.map(post => post.userId))];
       await fetchUsers(userIds);
     } catch (err) {
@@ -101,7 +110,6 @@ const Feed = () => {
       try {
         const response = await commentService.getCommentsByPostId(post.id);
         commentsObject[post.id] = response.data;
-        // Also fetch user data for commenters
         const commenterIds = response.data.map(comment => comment.userId);
         await fetchUsers(commenterIds);
       } catch (err) {
@@ -151,54 +159,50 @@ const Feed = () => {
 
   const handleNewPostSubmit = async (e) => {
     e.preventDefault();
-    if (!newPost.title || !newPost.contentDescription) return;
-    
+    if (!newPost.title || !newPost.contentDescription) {
+      toast.error('Title and description are required.');
+      return;
+    }
+
     try {
       setSubmittingPost(true);
-      
-      // Create arrays from media items
       const mediaLinks = mediaItems.map(item => item.url);
       const mediaTypes = mediaItems.map(item => item.type);
-      
-      console.log("Submitting with media:", { mediaLinks, mediaTypes }); // Debugging
-      
+      console.log('Submitting with media:', { mediaLinks, mediaTypes });
+
       const postData = {
         ...newPost,
         userId: currentUser.id,
-        timestamp: new Date(),
-        // Add both formats to ensure compatibility
-        mediaLinks: mediaLinks,
-        mediaTypes: mediaTypes,
-        // Legacy format - only use first item if available
+        timestamp: new Date().toISOString(),
+        mediaLinks,
+        mediaTypes,
         mediaLink: mediaLinks.length > 0 ? mediaLinks[0] : '',
         mediaType: mediaTypes.length > 0 ? mediaTypes[0] : ''
       };
-      
+
       const response = await postService.createPost(postData);
       const createdPost = response.data;
-      
-      // Update posts list with the new post
+
       setPosts(prev => [createdPost, ...prev]);
-      
-      // Clear the form
-      setNewPost({ 
-        title: '', 
-        contentDescription: '', 
-        ingredients: [], 
+      setNewPost({
+        title: '',
+        contentDescription: '',
+        ingredients: [],
         instructions: '',
         cookingTime: '',
         difficultyLevel: '',
         cuisineType: ''
       });
       setMediaItems([]);
+      toast.success('Post created successfully!');
     } catch (err) {
       console.error('Error creating post:', err);
-      console.error('Error details:', err.response?.data || err.message);
-      alert('Failed to create post. Please try again. ' + (err.response?.data || err.message));
+      toast.error('Failed to create post: ' + (err.response?.data?.message || err.message));
     } finally {
       setSubmittingPost(false);
     }
   };
+
   const handleNewCommentChange = (postId, value) => {
     setNewComment(prev => ({
       ...prev,
@@ -207,37 +211,35 @@ const Feed = () => {
   };
 
   const handleNewCommentSubmit = async (postId) => {
-    if (!newComment[postId]) return;
-    
+    if (!newComment[postId]) {
+      toast.error('Comment cannot be empty.');
+      return;
+    }
+
     try {
       setSubmittingComment(true);
-      
       const commentData = {
         postId,
         userId: currentUser.id,
         commentText: newComment[postId],
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       };
-      
-      // Pass currentUser.id as the second parameter
+
       const response = await commentService.createComment(commentData, currentUser.id);
-      
-      // Update comments list with the new comment
       const createdComment = response.data;
-      
+
       setComments(prev => ({
         ...prev,
         [postId]: [...(prev[postId] || []), createdComment]
       }));
-      
-      // Clear the comment input
       setNewComment(prev => ({
         ...prev,
         [postId]: ''
       }));
+      toast.success('Comment posted!');
     } catch (err) {
       console.error('Error creating comment:', err);
-      alert('Failed to post comment. Please try again.');
+      toast.error('Failed to post comment.');
     } finally {
       setSubmittingComment(false);
     }
@@ -247,219 +249,248 @@ const Feed = () => {
     if (!window.confirm('Are you sure you want to delete this comment?')) {
       return;
     }
-    
+
     try {
       await commentService.deleteComment(commentId, currentUser.id);
-      
-      // Update comments state
       setComments(prev => ({
         ...prev,
         [postId]: prev[postId].filter(comment => comment.id !== commentId)
       }));
+      toast.success('Comment deleted.');
     } catch (err) {
       console.error('Error deleting comment:', err);
-      alert('Failed to delete comment. Please try again.');
+      toast.error('Failed to delete comment.');
     }
   };
 
   const handleEditComment = (postId, commentId) => {
     const comment = comments[postId].find(c => c.id === commentId);
     if (comment) {
-      setEditingComment({ 
-        id: commentId, 
+      setEditingComment({
+        id: commentId,
         postId,
-        text: comment.commentText 
+        text: comment.commentText
       });
     }
   };
 
   const handleSaveEditedComment = async () => {
-    if (!editingComment.id || !editingComment.text.trim()) return;
-    
+    if (!editingComment.id || !editingComment.text.trim()) {
+      toast.error('Comment cannot be empty.');
+      return;
+    }
+
     try {
       const commentData = {
         commentText: editingComment.text
       };
-      
       await commentService.updateComment(editingComment.id, commentData, currentUser.id);
-      
-      // Update comments state
       setComments(prev => ({
         ...prev,
-        [editingComment.postId]: prev[editingComment.postId].map(comment => 
-          comment.id === editingComment.id 
-            ? { ...comment, commentText: editingComment.text } 
+        [editingComment.postId]: prev[editingComment.postId].map(comment =>
+          comment.id === editingComment.id
+            ? { ...comment, commentText: editingComment.text }
             : comment
         )
       }));
-      
       setEditingComment({ id: null, text: '' });
+      toast.success('Comment updated.');
     } catch (err) {
       console.error('Error updating comment:', err);
-      alert('Failed to update comment. Please try again.');
+      toast.error('Failed to update comment.');
     }
   };
 
   const handleLikeToggle = async (postId) => {
     const currentLikes = likes[postId] || [];
     const userLike = currentLikes.find(like => like.userId === currentUser.id);
-    if (userLike) {
-      // User already liked the post, so unlike it
-      try {
+    try {
+      if (userLike) {
         await likeService.deleteLike(userLike.id);
-        // Update likes state
         setLikes(prev => ({
           ...prev,
           [postId]: prev[postId].filter(like => like.id !== userLike.id)
         }));
-      } catch (err) {
-        console.error('Error removing like:', err);
-      }
-    } else {
-      // User hasn't liked the post, so like it
-      try {
+        toast.info('Like removed.');
+      } else {
         const likeData = {
           postId,
           userId: currentUser.id
         };
         const response = await likeService.createLike(likeData);
         const createdLike = response.data;
-        // Update likes state
         setLikes(prev => ({
           ...prev,
           [postId]: [...(prev[postId] || []), createdLike]
         }));
-      } catch (err) {
-        console.error('Error adding like:', err);
+        toast.info('Post liked!');
       }
+    } catch (err) {
+      console.error('Error toggling like:', err);
+      toast.error('Failed to toggle like.');
     }
   };
 
-  // Implement proper bookmark toggle functionality
   const handleBookmarkToggle = async (post) => {
     try {
-      // Check if post is already bookmarked
       if (bookmarkedPosts[post.id]) {
-        // If bookmarked, remove it
         await bookmarkService.deleteBookmark(bookmarkedPosts[post.id].id);
-        
-        // Update state
         setBookmarkedPosts(prev => {
-          const updated = {...prev};
+          const updated = { ...prev };
           delete updated[post.id];
           return updated;
         });
-        
         toast.success('Post removed from bookmarks');
       } else {
-        // If not bookmarked, add it
         const bookmarkData = {
           userId: currentUser.id,
           resourceId: post.id,
-          resourceType: "post",
-          title: post.title || "Recipe post",
-          note: post.contentDescription?.substring(0, 100) || "",
+          resourceType: 'post',
+          title: post.title || 'Recipe post',
+          note: post.contentDescription?.substring(0, 100) || '',
           tags: post.cuisineType ? [post.cuisineType] : []
         };
-        
         const response = await bookmarkService.createBookmark(bookmarkData);
-        
-        // Update state
         setBookmarkedPosts(prev => ({
           ...prev,
           [post.id]: response.data
         }));
-        
         toast.success('Post added to bookmarks');
       }
     } catch (err) {
-      console.error("Error toggling bookmark:", err);
-      toast.error("Failed to bookmark post. Please try again.");
+      console.error('Error toggling bookmark:', err);
+      toast.error('Failed to bookmark post.');
     }
   };
 
- // Update the renderSingleMedia function in Feed.js
- const renderSingleMedia = (mediaLink, mediaType) => {
-  // Handle YouTube links
-  if (mediaType === 'youtube' || mediaLink.includes('youtube.com') || mediaLink.includes('youtu.be')) {
-    let videoId = '';
-    
-    try {
-      if (mediaLink.includes('youtube.com/watch?v=')) {
-        videoId = mediaLink.split('v=')[1];
-        const ampersandPosition = videoId.indexOf('&');
-        if (ampersandPosition !== -1) {
-          videoId = videoId.substring(0, ampersandPosition);
-        }
-      } else if (mediaLink.includes('youtu.be/')) {
-        videoId = mediaLink.split('youtu.be/')[1];
-        const questionMarkPosition = videoId.indexOf('?');
-        if (questionMarkPosition !== -1) {
-          videoId = videoId.substring(0, questionMarkPosition);
-        }
-      }
-      
-      if (videoId) {
-        console.log("Rendering YouTube video:", videoId);
-        return (
-          <div className="ratio ratio-16x9 mb-3">
-            <iframe
-              src={`https://www.youtube.com/embed/${videoId}`}
-              title="YouTube video"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="rounded w-100"
-            ></iframe>
-          </div>
-        );
-      }
-    } catch (error) {
-      console.error("Error rendering YouTube video:", error);
+  // Handle initiating post edit
+  const handleEditPost = (post) => {
+    setEditingPost({
+      id: post.id,
+      title: post.title || '',
+      contentDescription: post.contentDescription || '',
+      ingredients: post.ingredients || [],
+      instructions: post.instructions || '',
+      cookingTime: post.cookingTime || '',
+      difficultyLevel: post.difficultyLevel || '',
+      cuisineType: post.cuisineType || '',
+      mediaLinks: post.mediaLinks || [],
+      mediaTypes: post.mediaTypes || []
+    });
+    setMediaItems(
+      post.mediaLinks.map((link, index) => ({
+        url: link,
+        type: post.mediaTypes[index] || '',
+        id: Date.now() + index // Ensure unique IDs
+      }))
+    );
+  };
+
+  // Handle saving edited post
+  const handleSaveEditedPost = async (e) => {
+    e.preventDefault();
+    if (!editingPost.title || !editingPost.contentDescription) {
+      toast.error('Title and description are required.');
+      return;
     }
-  }
-  
-  
 
-  
-  // Handle images
-  else if (mediaType?.includes('image') || mediaLink.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-    return (
-      <img 
-        src={mediaLink} 
-        alt="Post content" 
-        className="img-fluid rounded mb-3" 
-      />
-    );
-  }
-  
-  // Handle videos
-  else if (mediaType?.includes('video') || mediaLink.match(/\.(mp4|mov|avi|wmv|webm)$/i)) {
-    return (
-      <div className="ratio ratio-16x9 mb-3">
-        <video 
-          src={mediaLink}
-          controls
-          preload="metadata"
-          className="rounded w-100"
-        >
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    );
-  }
-  
-  // If no media type matches, try to provide a link
-  return (
-    <a href={mediaLink} target="_blank" rel="noopener noreferrer" className="d-block mb-3">
-      {mediaLink}
-    </a>
-  );
-};
+    try {
+      const updatedPost = {
+        ...editingPost,
+        mediaLinks: mediaItems.map(item => item.url),
+        mediaTypes: mediaItems.map(item => item.type),
+        mediaLink: mediaItems.length > 0 ? mediaItems[0].url : '',
+        mediaType: mediaItems.length > 0 ? mediaItems[0].type : '',
+        timestamp: new Date().toISOString()
+      };
 
-  // Update renderPostContent function to fix duplicate images issue
+      const response = await postService.updatePost(editingPost.id, updatedPost);
+      const updatedPostData = response.data;
+
+      setPosts(prev =>
+        prev.map(post => (post.id === editingPost.id ? updatedPostData : post))
+      );
+      setEditingPost(null);
+      setMediaItems([]);
+      toast.success('Post updated successfully!');
+    } catch (err) {
+      console.error('Error updating post:', err);
+      toast.error('Failed to update post: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  // Handle post deletion
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Are you sure you want to delete this post?')) {
+      return;
+    }
+
+    try {
+      await postService.deletePost(postId);
+      setPosts(prev => prev.filter(post => post.id !== postId));
+      toast.success('Post deleted successfully!');
+    } catch (err) {
+      console.error('Error deleting post:', err);
+      toast.error('Failed to delete post: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const renderSingleMedia = (mediaLink, mediaType) => {
+    if (mediaType === 'youtube' || mediaLink.includes('youtube.com') || mediaLink.includes('youtu.be')) {
+      let videoId = '';
+      try {
+        if (mediaLink.includes('youtube.com/watch?v=')) {
+          videoId = mediaLink.split('v=')[1];
+          const ampersandPosition = videoId.indexOf('&');
+          if (ampersandPosition !== -1) {
+            videoId = videoId.substring(0, ampersandPosition);
+          }
+        } else if (mediaLink.includes('youtu.be/')) {
+          videoId = mediaLink.split('youtu.be/')[1];
+          const questionMarkPosition = videoId.indexOf('?');
+          if (questionMarkPosition !== -1) {
+            videoId = videoId.substring(0, questionMarkPosition);
+          }
+        }
+        if (videoId) {
+          console.log('Rendering YouTube video:', videoId);
+          return (
+            <div className="ratio ratio-16x9 mb-3">
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}`}
+                title="YouTube video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="rounded w-100"
+              ></iframe>
+            </div>
+          );
+        }
+      } catch (error) {
+        console.error('Error rendering YouTube video:', error);
+      }
+    } else if (mediaType?.includes('image') || mediaLink.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+      return (
+        <img src={mediaLink} alt="Post content" className="img-fluid rounded mb-3" />
+      );
+    } else if (mediaType?.includes('video') || mediaLink.match(/\.(mp4|mov|avi|wmv|webm)$/i)) {
+      return (
+        <div className="ratio ratio-16x9 mb-3">
+          <video src={mediaLink} controls preload="metadata" className="rounded w-100">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      );
+    }
+    return (
+      <a href={mediaLink} target="_blank" rel="noopener noreferrer" className="d-block mb-3">
+        {mediaLink}
+      </a>
+    );
+  };
+
   const renderPostContent = (post) => {
-    // Only use mediaLinks array if it exists and has items
     if (post.mediaLinks && post.mediaLinks.length > 0) {
       return (
         <div className="post-media-gallery">
@@ -472,12 +503,9 @@ const Feed = () => {
           </Row>
         </div>
       );
-    }
-    // Only use single mediaLink as fallback if no mediaLinks array exists
-    else if (post.mediaLink) {
+    } else if (post.mediaLink) {
       return renderSingleMedia(post.mediaLink, post.mediaType);
     }
-    
     return null;
   };
 
@@ -546,12 +574,14 @@ const Feed = () => {
                     placeholder="List your ingredients, one per line"
                     name="ingredients"
                     value={newPost.ingredients?.join('\n') || ''}
-                    onChange={(e) => handleNewPostChange({
-                      target: {
-                        name: 'ingredients',
-                        value: e.target.value.split('\n').filter(line => line.trim())
-                      }
-                    })}
+                    onChange={(e) =>
+                      handleNewPostChange({
+                        target: {
+                          name: 'ingredients',
+                          value: e.target.value.split('\n').filter(line => line.trim())
+                        }
+                      })
+                    }
                   />
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -615,13 +645,9 @@ const Feed = () => {
                     </Form.Group>
                   </Col>
                 </Row>
-                {/* Replace the existing media fields with MediaUpload component */}
                 <Form.Group className="mb-3">
                   <Form.Label>Add Photos/Videos</Form.Label>
-                  <MediaUpload 
-                    onChange={items => setMediaItems(items)} 
-                    maxItems={3} 
-                  />
+                  <MediaUpload onChange={items => setMediaItems(items)} maxItems={3} />
                 </Form.Group>
                 <div className="text-end">
                   <Button
@@ -635,6 +661,7 @@ const Feed = () => {
               </Form>
             </Card.Body>
           </Card>
+
           {/* Posts Feed */}
           {posts.length === 0 ? (
             <div className="text-center py-5">
@@ -644,43 +671,72 @@ const Feed = () => {
           ) : (
             posts.map(post => (
               <Card key={post.id} className="custom-card mb-4">
-                {/* Post Header */}
-                <Card.Header className="bg-white d-flex align-items-center">
-                  {users[post.userId]?.profileImage ? (
-                    <img
-                      src={users[post.userId].profileImage}
-                      alt="User avatar"
-                      className="rounded-circle me-2"
-                      width="40"
-                      height="40"
-                      style={{ objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <FaUserCircle size={40} className="text-secondary me-2" />
-                  )}
-                  <div>
-                    <h6 className="mb-0">{users[post.userId]?.username || 'Unknown User'}</h6>
-                    <small className="text-muted">
-                      {formatTimeAgo(post.timestamp)}
-                    </small>
+                <Card.Header className="bg-white d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center">
+                    {users[post.userId]?.profileImage ? (
+                      <img
+                        src={users[post.userId].profileImage}
+                        alt="User avatar"
+                        className="rounded-circle me-2"
+                        width="40"
+                        height="40"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <FaUserCircle size={40} className="text-secondary me-2" />
+                    )}
+                    <div>
+                      <h6 className="mb-0">{users[post.userId]?.username || 'Unknown User'}</h6>
+                      <small className="text-muted">{formatTimeAgo(post.timestamp)}</small>
+                    </div>
                   </div>
+                  {/* Edit/Delete buttons for post owner */}
+                  {post.userId === currentUser?.id && (
+                    <div>
+                      <Button
+                        variant="link"
+                        className="p-0 text-primary me-2"
+                        onClick={() => handleEditPost(post)}
+                        title="Edit post"
+                      >
+                        <FaEdit size={16} />
+                      </Button>
+                      <Button
+                        variant="link"
+                        className="p-0 text-danger"
+                        onClick={() => handleDeletePost(post.id)}
+                        title="Delete post"
+                      >
+                        <FaTrash size={16} />
+                      </Button>
+                    </div>
+                  )}
                 </Card.Header>
-                {/* Post Content */}
                 <Card.Body>
                   <h5 className="mb-3">{post.title}</h5>
                   {post.cuisineType && (
-                    <Badge bg="info" className="mb-3 me-2">{post.cuisineType}</Badge>
+                    <Badge bg="info" className="mb-3 me-2">
+                      {post.cuisineType}
+                    </Badge>
                   )}
                   {post.difficultyLevel && (
-                    <Badge bg={
-                      post.difficultyLevel === 'Beginner' ? 'success' :
-                      post.difficultyLevel === 'Intermediate' ? 'warning' : 'danger'
-                    } className="mb-3 me-2">
+                    <Badge
+                      bg={
+                        post.difficultyLevel === 'Beginner'
+                          ? 'success'
+                          : post.difficultyLevel === 'Intermediate'
+                          ? 'warning'
+                          : 'danger'
+                      }
+                      className="mb-3 me-2"
+                    >
                       {post.difficultyLevel}
                     </Badge>
                   )}
                   {post.cookingTime && (
-                    <Badge bg="secondary" className="mb-3">⏱️ {post.cookingTime}</Badge>
+                    <Badge bg="secondary" className="mb-3">
+                      ⏱️ {post.cookingTime}
+                    </Badge>
                   )}
                   {renderPostContent(post)}
                   <Card.Text>{post.contentDescription}</Card.Text>
@@ -700,24 +756,16 @@ const Feed = () => {
                       <p>{post.instructions}</p>
                     </div>
                   )}
-                  {/* Post Actions */}
                   <div className="d-flex mt-3">
                     <Button
                       variant="link"
                       className={`text-decoration-none ${isPostLikedByUser(post.id) ? 'text-danger' : 'text-muted'}`}
                       onClick={() => handleLikeToggle(post.id)}
                     >
-                      {isPostLikedByUser(post.id) ? (
-                        <FaHeart className="me-1" />
-                      ) : (
-                        <FaRegHeart className="me-1" />
-                      )}
+                      {isPostLikedByUser(post.id) ? <FaHeart className="me-1" /> : <FaRegHeart className="me-1" />}
                       {(likes[post.id] || []).length}
                     </Button>
-                    <Button
-                      variant="link"
-                      className="text-decoration-none text-muted ms-3"
-                    >
+                    <Button variant="link" className="text-decoration-none text-muted ms-3">
                       <FaComment className="me-1" />
                       {(comments[post.id] || []).length}
                     </Button>
@@ -726,18 +774,12 @@ const Feed = () => {
                       className={`text-decoration-none ${bookmarkedPosts[post.id] ? 'text-primary' : 'text-muted'} ms-3`}
                       onClick={() => handleBookmarkToggle(post)}
                     >
-                      {bookmarkedPosts[post.id] ? (
-                        <FaBookmark className="me-1" />
-                      ) : (
-                        <FaRegBookmark className="me-1" />
-                      )}
+                      {bookmarkedPosts[post.id] ? <FaBookmark className="me-1" /> : <FaRegBookmark className="me-1" />}
                       Bookmark
                     </Button>
                   </div>
                 </Card.Body>
-                {/* Comments Section */}
                 <Card.Footer className="bg-white">
-                  {/* Comment List */}
                   {comments[post.id] && comments[post.id].length > 0 && (
                     <div className="mb-3">
                       {comments[post.id].map(comment => (
@@ -747,24 +789,20 @@ const Feed = () => {
                             <div className="d-flex justify-content-between">
                               <strong>{users[comment.userId]?.username || 'Unknown User'}</strong>
                               <div>
-                                <small className="text-muted me-2">
-                                  {formatTimeAgo(comment.timestamp)}
-                                </small>
-                                {/* Show edit button only to comment author */}
-                                {comment.userId === currentUser.id && (
-                                  <Button 
-                                    variant="link" 
-                                    className="p-0 text-primary me-2" 
+                                <small className="text-muted me-2">{formatTimeAgo(comment.timestamp)}</small>
+                                {comment.userId === currentUser?.id && (
+                                  <Button
+                                    variant="link"
+                                    className="p-0 text-primary me-2"
                                     onClick={() => handleEditComment(post.id, comment.id)}
                                   >
                                     <FaEdit size={14} />
                                   </Button>
                                 )}
-                                {/* Show delete button to comment author or post owner */}
-                                {(comment.userId === currentUser.id || post.userId === currentUser.id) && (
-                                  <Button 
-                                    variant="link" 
-                                    className="p-0 text-danger" 
+                                {(comment.userId === currentUser?.id || post.userId === currentUser?.id) && (
+                                  <Button
+                                    variant="link"
+                                    className="p-0 text-danger"
                                     onClick={() => handleDeleteComment(post.id, comment.id)}
                                   >
                                     <FaTrash size={14} />
@@ -778,7 +816,6 @@ const Feed = () => {
                       ))}
                     </div>
                   )}
-                  {/* Add Comment Form */}
                   <div className="d-flex">
                     <FaUserCircle size={30} className="text-secondary me-2 mt-1" />
                     <Form className="flex-grow-1 d-flex">
@@ -786,8 +823,8 @@ const Feed = () => {
                         type="text"
                         placeholder="Write a comment..."
                         value={newComment[post.id] || ''}
-                        onChange={(e) => handleNewCommentChange(post.id, e.target.value)}
-                        onKeyPress={(e) => {
+                        onChange={e => handleNewCommentChange(post.id, e.target.value)}
+                        onKeyPress={e => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             handleNewCommentSubmit(post.id);
@@ -823,7 +860,7 @@ const Feed = () => {
                 as="textarea"
                 rows={3}
                 value={editingComment.text}
-                onChange={(e) => setEditingComment(prev => ({ ...prev, text: e.target.value }))}
+                onChange={e => setEditingComment(prev => ({ ...prev, text: e.target.value }))}
               />
             </Form.Group>
           </Form>
@@ -837,8 +874,133 @@ const Feed = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      
-      {/* Toast Container for notifications */}
+
+      {/* Post Edit Modal */}
+      <Modal show={!!editingPost} onHide={() => { setEditingPost(null); setMediaItems([]); }}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Post</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSaveEditedPost}>
+            <Form.Group className="mb-3">
+              <Form.Label>Recipe Title</Form.Label>
+              <Form.Control
+                type="text"
+                value={editingPost?.title || ''}
+                onChange={e => setEditingPost(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Name of your dish or cooking technique"
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={editingPost?.contentDescription || ''}
+                onChange={e => setEditingPost(prev => ({ ...prev, contentDescription: e.target.value }))}
+                placeholder="Share the story behind this recipe or skill"
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Ingredients</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={editingPost?.ingredients?.join('\n') || ''}
+                onChange={e =>
+                  setEditingPost(prev => ({
+                    ...prev,
+                    ingredients: e.target.value.split('\n').filter(line => line.trim())
+                  }))
+                }
+                placeholder="List your ingredients, one per line"
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Instructions</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={5}
+                value={editingPost?.instructions || ''}
+                onChange={e => setEditingPost(prev => ({ ...prev, instructions: e.target.value }))}
+                placeholder="Share the step-by-step cooking process"
+              />
+            </Form.Group>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Cooking Time</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={editingPost?.cookingTime || ''}
+                    onChange={e => setEditingPost(prev => ({ ...prev, cookingTime: e.target.value }))}
+                    placeholder="e.g. 30 mins"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Difficulty Level</Form.Label>
+                  <Form.Select
+                    value={editingPost?.difficultyLevel || ''}
+                    onChange={e => setEditingPost(prev => ({ ...prev, difficultyLevel: e.target.value }))}
+                  >
+                    <option value="">Select difficulty</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Cuisine Type</Form.Label>
+                  <Form.Select
+                    value={editingPost?.cuisineType || ''}
+                    onChange={e => setEditingPost(prev => ({ ...prev, cuisineType: e.target.value }))}
+                  >
+                    <option value="">Select cuisine</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Japanese">Japanese</option>
+                    <option value="French">French</option>
+                    <option value="Thai">Thai</option>
+                    <option value="American">American</option>
+                    <option value="Other">Other</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Add Photos/Videos</Form.Label>
+              <MediaUpload
+                onChange={items => setMediaItems(items)}
+                maxItems={3}
+                initialItems={mediaItems}
+              />
+            </Form.Group>
+            <div className="text-end">
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={!editingPost?.title || !editingPost?.contentDescription}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => { setEditingPost(null); setMediaItems([]); }}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <ToastContainer position="bottom-right" autoClose={3000} />
     </Container>
   );
