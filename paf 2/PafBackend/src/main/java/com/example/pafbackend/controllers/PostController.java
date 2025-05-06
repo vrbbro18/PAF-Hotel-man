@@ -35,6 +35,7 @@ public class PostController {
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
     // No major changes needed, but you may want to add a method for filtering by cuisine type
+    // No major changes needed, but you may want to add a method for filtering by cuisine type
 @GetMapping("/cuisine/{cuisineType}")
 public ResponseEntity<List<Post>> getPostsByCuisineType(@PathVariable String cuisineType) {
     List<Post> posts = postRepository.findByCuisineType(cuisineType);
@@ -51,6 +52,7 @@ public ResponseEntity<Post> createPost(@RequestBody Post post) {
         if (post.getMediaTypes() == null) {
             post.setMediaTypes(new ArrayList<>());
         }
+
 
         // For backward compatibility, add single media to arrays if they're not already there
         if (post.getMediaLink() != null && !post.getMediaLink().isEmpty() && 
