@@ -92,7 +92,7 @@ public ResponseEntity<Post> createPost(@RequestBody Post post) {
             if (updatedPost.getContentDescription() != null) {
                 existingPost.setContentDescription(updatedPost.getContentDescription());
             }
-            // Save the updated post
+
             Post savedPost = postRepository.save(existingPost);
             return new ResponseEntity<>(savedPost, HttpStatus.OK);
         } else {
