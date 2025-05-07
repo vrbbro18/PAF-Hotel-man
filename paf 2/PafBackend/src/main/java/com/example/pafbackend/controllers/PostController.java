@@ -61,7 +61,7 @@ public ResponseEntity<Post> createPost(@RequestBody Post post) {
             post.getMediaTypes().add(post.getMediaType() != null ? post.getMediaType() : "");
         }
         
-        // Log what we're saving
+
         System.out.println("Saving post with media: " + post.getMediaLinks().size() + " items");
         
         Post savedPost = postRepository.save(post);
