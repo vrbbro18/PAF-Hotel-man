@@ -7,7 +7,7 @@ import MediaUpload from '../components/MediaUpload';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Utility function to format timestamps
+
 const formatTimeAgo = (dateString) => {
   if (!dateString) return 'Recently';
   const date = new Date(dateString);
