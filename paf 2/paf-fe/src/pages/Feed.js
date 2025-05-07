@@ -52,12 +52,12 @@ const Feed = () => {
   // State for editing a post
   const [editingPost, setEditingPost] = useState(null);
 
-  // Debug currentUser on mount
+
   useEffect(() => {
     console.log('Current User:', currentUser);
   }, [currentUser]);
 
-  // Fetch posts on mount
+
   useEffect(() => {
     fetchPosts();
   }, []);
