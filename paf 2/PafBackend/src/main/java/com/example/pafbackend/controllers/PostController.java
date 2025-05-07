@@ -34,8 +34,7 @@ public class PostController {
         List<Post> posts = postRepository.findByUserId(userId);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
-    // No major changes needed, but you may want to add a method for filtering by cuisine type
-    // No major changes needed, but you may want to add a method for filtering by cuisine type
+
 @GetMapping("/cuisine/{cuisineType}")
 public ResponseEntity<List<Post>> getPostsByCuisineType(@PathVariable String cuisineType) {
     List<Post> posts = postRepository.findByCuisineType(cuisineType);
