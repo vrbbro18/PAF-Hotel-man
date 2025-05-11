@@ -2,65 +2,56 @@ package com.example.pafbackend.controllers;
 
 import com.example.pafbackend.models.MealPlan;
 import com.example.pafbackend.repositories.MealPlanRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 @RestController
-@RequestMapping("/api/MealPlans")
+@RequestMapping("/api/meal-plans")
+@CrossOrigin(origins = "http://localhost:3000")
 public class MealPlanController {
 
-    private final MealPlanRepository MealPlanRepository;
+    private final MealPlanRepository mealPlanRepository;
 
-    @Autowired
-    public MealPlanController(MealPlanRepository MealPlanRepository) {
-        this.MealPlanRepository = MealPlanRepository;
+    public MealPlanController(MealPlanRepository mealPlanRepository) {
+        this.mealPlanRepository = mealPlanRepository;
     }
 
     @GetMapping
-    public ResponseEntity<List<MealPlan>> getMealPlans() {
-        List<MealPlan> MealPlans = MealPlanRepository.findAll();
-        return new ResponseEntity<>(MealPlans, HttpStatus.OK);
+    public ResponseEntity<List<MealPlan>> getAllMealPlans() {
+        return ResponseEntity.ok(mealPlanRepository.findAll());
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<MealPlan>> getMealPlansByUserId(@PathVariable String userId) {
-        List<MealPlan> MealPlans = MealPlanRepository.findByUserId(userId);
-        return new ResponseEntity<>(MealPlans, HttpStatus.OK);
+    @GetMapping("/{id}")
+    public ResponseEntity<MealPlan> getMealPlanById(@PathVariable String id) {
+        return mealPlanRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<MealPlan> createMealPlan(@RequestBody MealPlan MealPlan) {
-        MealPlan savedMealPlan = MealPlanRepository.save(MealPlan);
-        return new ResponseEntity<>(savedMealPlan, HttpStatus.CREATED);
+    public ResponseEntity<MealPlan> createMealPlan(@RequestBody MealPlan mealPlan) {
+        return ResponseEntity.ok(mealPlanRepository.save(mealPlan));
     }
 
-    @DeleteMapping("/{MealPlanId}")
-    public ResponseEntity<Void> deleteMealPlan(@PathVariable String MealPlanId) {
-        MealPlanRepository.deleteById(MealPlanId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-    @PutMapping("/{MealPlanId}")
-    public ResponseEntity<MealPlan> updateMealPlan(@PathVariable String MealPlanId, @RequestBody MealPlan updatedMealPlan) {
-        Optional<MealPlan> existingMealPlanOptional = MealPlanRepository.findById(MealPlanId);
-        if (existingMealPlanOptional.isPresent()) {
-            MealPlan existingMealPlan = existingMealPlanOptional.get();
-            // Update the existing Learning Progress with the new details
-            existingMealPlan.setUserId(updatedMealPlan.getUserId());
-            existingMealPlan.setRoutines(updatedMealPlan.getRoutines());
-            existingMealPlan.setPlanName(updatedMealPlan.getPlanName());
-            existingMealPlan.setDescription(updatedMealPlan.getDescription());
-            existingMealPlan.setGoal(updatedMealPlan.getGoal());
-
-            // Save the updated Learning Progress
-            MealPlan savedMealPlan = MealPlanRepository.save(existingMealPlan);
-            return new ResponseEntity<>(savedMealPlan, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PutMapping("/{id}")
+    public ResponseEntity<MealPlan> updateMealPlan(@PathVariable String id, @RequestBody MealPlan mealPlan) {
+        return mealPlanRepository.findById(id)
+                .map(existingMealPlan -> {
+                    mealPlan.setId(id);
+                    return ResponseEntity.ok(mealPlanRepository.save(mealPlan));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMealPlan(@PathVariable String id) {
+        return mealPlanRepository.findById(id)
+                .map(mealPlan -> {
+                    mealPlanRepository.delete(mealPlan);
+                    return ResponseEntity.ok().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

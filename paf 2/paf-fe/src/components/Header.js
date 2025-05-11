@@ -62,6 +62,13 @@ useEffect(() => {
                 >
                   Feed
                 </Nav.Link>
+                <Nav.Link 
+  as={Link} 
+  to="/my-recipes" 
+  className={`nav-link ${isActive('/my-recipes')}`}
+>
+  My Recipes
+</Nav.Link>
                 
                 <Nav.Link 
   as={Link} 

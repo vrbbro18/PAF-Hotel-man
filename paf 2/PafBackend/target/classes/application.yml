@@ -13,8 +13,8 @@ spring:
     active: dev
   data:
     mongodb:
-      uri: mongodb+srv://cooking-app-user:ranidu123@cooking-app-cluster.6f2l0rg.mongodb.net/?retryWrites=true&w=majority&appName=cooking-app-cluster
-      database: ${MONGODB_DB:myFirstDatabase}
+     uri: mongodb+srv://cooking-app-user:ranidu123@cooking-app-cluster.6f2l0rg.mongodb.net/?retryWrites=true&w=majority&appName=cooking-app-cluster
+     database: ${MONGODB_DB:myFirstDatabase}
   security:
     oauth2:
       client:

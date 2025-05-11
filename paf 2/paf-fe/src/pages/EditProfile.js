@@ -177,7 +177,7 @@ const EditProfile = () => {
                 </Form.Group>
                 
                 <Form.Group className="mb-3">
-                  <Form.Label>Fitness Goals</Form.Label>
+                  <Form.Label>Cooking Goals</Form.Label>
                   <Form.Control 
                     as="textarea" 
                     rows={3} 
