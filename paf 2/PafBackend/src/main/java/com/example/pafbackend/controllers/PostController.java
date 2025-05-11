@@ -36,6 +36,7 @@ public class PostController {
     }
     
     // No major changes needed, but you may want to add a method for filtering by cuisine type
+<<<<<<< HEAD
     @GetMapping("/cuisine/{cuisineType}")
     public ResponseEntity<List<Post>> getPostsByCuisineType(@PathVariable String cuisineType) {
         List<Post> posts = postRepository.findByCuisineType(cuisineType);
@@ -70,6 +71,43 @@ public class PostController {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); 
         }
+=======
+    // No major changes needed, but you may want to add a method for filtering by cuisine type
+@GetMapping("/cuisine/{cuisineType}")
+public ResponseEntity<List<Post>> getPostsByCuisineType(@PathVariable String cuisineType) {
+    List<Post> posts = postRepository.findByCuisineType(cuisineType);
+    return new ResponseEntity<>(posts, HttpStatus.OK);
+}
+
+@PostMapping
+public ResponseEntity<Post> createPost(@RequestBody Post post) {
+    try {
+        // Ensure the media arrays exist
+        if (post.getMediaLinks() == null) {
+            post.setMediaLinks(new ArrayList<>());
+        }
+        if (post.getMediaTypes() == null) {
+            post.setMediaTypes(new ArrayList<>());
+        }
+
+
+        // For backward compatibility, add single media to arrays if they're not already there
+        if (post.getMediaLink() != null && !post.getMediaLink().isEmpty() && 
+            !post.getMediaLinks().contains(post.getMediaLink())) {
+            post.getMediaLinks().add(post.getMediaLink());
+            post.getMediaTypes().add(post.getMediaType() != null ? post.getMediaType() : "");
+        }
+        
+        // Log what we're saving
+        System.out.println("Saving post with media: " + post.getMediaLinks().size() + " items");
+        
+        Post savedPost = postRepository.save(post);
+        return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
+    } catch (Exception e) {
+        System.err.println("Error creating post: " + e.getMessage());
+        e.printStackTrace();
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); 
+>>>>>>> baffbc9d6c46f55c4114d39f6cad613d48b281b2
     }
 
     @DeleteMapping("/{postId}")
